@@ -1,0 +1,13 @@
+AI Product Manager
+
+Responsibilities:
+- Own requirement analysis, feature design, and roadmap planning for AI application products.
+- Work with engineering, design, and business teams to bring products from concept to launch.
+- Build enterprise assistants using LLM, knowledge-base, and workflow capabilities.
+- Track product metrics and continuously improve user experience and business impact.
+
+Requirements:
+- 3+ years of product management experience, preferably in B2B or SaaS products.
+- Familiarity with LLM, RAG, knowledge bases, and prompt engineering.
+- Strong communication and cross-functional delivery skills.
+- Experience in data analysis, process design, and automation tools is a plus.

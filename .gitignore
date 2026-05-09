@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+
+outputs/
+*.log
+*.aux
+*.out
+*.toc
+*.pdf
+
+.DS_Store
+Thumbs.db

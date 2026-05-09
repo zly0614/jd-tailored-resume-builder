@@ -1,0 +1,101 @@
+{
+  "basic_info": {
+    "name": "Alex Chen",
+    "title": "Senior Product Manager / AI Applications",
+    "email": "alex.chen@example.com",
+    "phone": "+86 138-0000-0000",
+    "location": "Shanghai",
+    "links": [
+      "LinkedIn: linkedin.com/in/example",
+      "GitHub: github.com/example",
+      "Portfolio: example.com"
+    ]
+  },
+  "summary_options": [
+    "8 years of experience across internet products and enterprise software, with end-to-end ownership from discovery to launch and iteration.",
+    "Focused on AI applications, data products, and workflow automation, with strong cross-functional delivery experience.",
+    "Experienced in turning ambiguous business problems into shippable product plans with measurable business outcomes."
+  ],
+  "skills": {
+    "product": ["Requirement Analysis", "Roadmapping", "PRD", "User Research", "A/B Testing", "Process Design"],
+    "data": ["SQL", "Data Analysis", "Metrics Design", "Tableau", "Power BI"],
+    "ai": ["LLM", "RAG", "Prompt Engineering", "Knowledge Base", "Workflow Automation"],
+    "collaboration": ["Project Management", "Cross-functional Collaboration", "Agile Delivery", "Stakeholder Management"]
+  },
+  "work_experiences": [
+    {
+      "company": "Smart Enterprise Tech",
+      "title": "Senior Product Manager",
+      "start": "2021.03",
+      "end": "Present",
+      "location": "Shanghai",
+      "tags": ["AI", "Knowledge Base", "SaaS", "Automation"],
+      "bullets": [
+        "Led the design of an enterprise knowledge-base assistant used across support, sales, and internal operations.",
+        "Shipped an LLM-based retrieval pipeline that improved document QA accuracy by 25 percent.",
+        "Worked with engineering, applied AI, and implementation teams to reduce customer onboarding time."
+      ]
+    },
+    {
+      "company": "Enterprise Platform Co",
+      "title": "Product Manager",
+      "start": "2018.06",
+      "end": "2021.02",
+      "location": "Hangzhou",
+      "tags": ["Data Product", "B2B", "Process Optimization"],
+      "bullets": [
+        "Owned roadmap planning for a shared data platform supporting multiple business lines.",
+        "Designed approval and task-routing modules that cut core operations processing time by 40 percent.",
+        "Improved cross-team execution through a structured intake and prioritization process."
+      ]
+    }
+  ],
+  "project_experiences": [
+    {
+      "name": "AI Resume Tailoring Assistant",
+      "role": "Project Lead",
+      "start": "2024.01",
+      "end": "2024.06",
+      "tags": ["LLM", "RAG", "Resume Generation", "LaTeX"],
+      "bullets": [
+        "Designed a master-profile schema and JD matching strategy for generating multiple resumes from one profile.",
+        "Introduced LaTeX-based resume output for consistency and delivery speed.",
+        "Built keyword ranking and highlight selection logic to surface the best-fit experience for each role."
+      ]
+    },
+    {
+      "name": "Internal Knowledge QA Platform",
+      "role": "Product Owner",
+      "start": "2023.02",
+      "end": "2023.11",
+      "tags": ["Knowledge Base", "Semantic Retrieval", "Workflow"],
+      "bullets": [
+        "Owned the platform from discovery to rollout, including document ingestion, permissions, and answer tracing.",
+        "Improved first-answer hit rate by optimizing chunking and retrieval quality."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "school": "Fudan University",
+      "degree": "Master",
+      "major": "Information Management",
+      "start": "2014",
+      "end": "2017"
+    },
+    {
+      "school": "East China University of Science and Technology",
+      "degree": "Bachelor",
+      "major": "E-Commerce",
+      "start": "2010",
+      "end": "2014"
+    }
+  ],
+  "certificates": [
+    {
+      "name": "PMP",
+      "issuer": "PMI",
+      "year": "2022"
+    }
+  ]
+}
