@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}生成结果 - Jianli Creator{% endblock %}
+
+{% block hero %}
+<h1>第四步：查看结果并继续迭代</h1>
+<p>结果页只负责查看输出、下载文件、保存反馈和回到上一阶段继续调整。这样每个阶段职责都更清晰。</p>
+{% endblock %}
+
+{% block body %}
+<div class="progress">
+  <div class="progress-step">1. 选择模板</div>
+  <div class="progress-step">2. 建立知识库</div>
+  <div class="progress-step">3. 上传 JD 并生成</div>
+  <div class="progress-step active">4. 查看结果</div>
+</div>
+
+{% if message %}
+  <div class="status">{{ message }}</div>
+{% endif %}
+{% if error %}
+  <div class="error">{{ error }}</div>
+{% endif %}
+
+<div class="layout-2">
+  <section class="panel">
+    <div class="section-label"><span class="step-dot">4</span> 简历生成结果</div>
+    <h2 class="section-title">输出预览</h2>
+    <div class="meta-grid" style="margin-bottom: 16px;">
+      <div class="meta-card">
+        <span>Target Role</span>
+        <strong>{{ target_role }}</strong>
+      </div>
+      <div class="meta-card">
+        <span>Model</span>
+        <strong>{{ used_model }}</strong>
+      </div>
+      <div class="meta-card">
+        <span>Template</span>
+        <strong>{{ selected_template.label }}</strong>
+      </div>
+      <div class="meta-card">
+        <span>Output</span>
+        <strong>{{ output_path }}</strong>
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top: 0; margin-bottom: 16px;">
+      <a class="button-link secondary" href="/download?path={{ output_path | urlencode }}">下载 .tex</a>
+      {% if pdf_path %}
+        <a class="button-link secondary" href="/download?path={{ pdf_path | urlencode }}">下载 .pdf</a>
+      {% endif %}
+      {% if pdf_log_path %}
+        <a class="button-link ghost" href="/download?path={{ pdf_log_path | urlencode }}">下载编译日志</a>
+      {% endif %}
+    </div>
+
+    <pre>{{ latex }}</pre>
+  </section>
+
+  <aside class="panel">
+    <div class="stack">
+      <div class="card">
+        <label>结构化 Draft</label>
+        <pre>{{ draft_json }}</pre>
+      </div>
+
+      <div class="card">
+        <label>继续调整</label>
+        <p class="hint">如果你想改 JD、补充资料或模型参数，可以直接回到上一阶段继续生成。</p>
+        <form method="post" action="/customize">
+          <input type="hidden" name="template_name" value="{{ template_name }}">
+          <textarea name="profile_text" style="display:none;">{{ profile_text }}</textarea>
+          <div class="actions">
+            <button type="submit" class="ghost">返回 JD 配置页</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <label>保存反馈</label>
+        <p class="hint">反馈会写入 `memory.md`，供下一轮生成复用。</p>
+        <form method="post" action="/feedback">
+          <textarea name="profile_text" style="display:none;">{{ profile_text }}</textarea>
+          <textarea name="jd_text" style="display:none;">{{ jd_text }}</textarea>
+          <textarea name="latex" style="display:none;">{{ latex }}</textarea>
+          <textarea name="draft_json" style="display:none;">{{ draft_json }}</textarea>
+          <input type="hidden" name="target_role" value="{{ target_role }}">
+          <input type="hidden" name="output_path" value="{{ output_path }}">
+          <input type="hidden" name="used_model" value="{{ used_model }}">
+          <input type="hidden" name="memory_file" value="{{ memory_file }}">
+          <input type="hidden" name="mode" value="{{ mode }}">
+          <input type="hidden" name="compile_pdf" value="{{ 'true' if compile_pdf else 'false' }}">
+          <input type="hidden" name="pdf_path" value="{{ pdf_path }}">
+          <input type="hidden" name="pdf_log_path" value="{{ pdf_log_path }}">
+          <input type="hidden" name="language" value="{{ language }}">
+          <input type="hidden" name="template_name" value="{{ template_name }}">
+          <input type="hidden" name="llm_model" value="{{ llm_model }}">
+          <input type="hidden" name="llm_base_url" value="{{ llm_base_url }}">
+          <input type="hidden" name="llm_api_key" value="{{ llm_api_key }}">
+          <textarea name="supplement_text" style="display:none;">{{ supplement_text }}</textarea>
+          <textarea name="feedback_text" placeholder="例如：强化知识库产品经验，减少泛化表述，突出结果指标。"></textarea>
+          <div class="actions">
+            <button type="submit" class="primary">保存反馈</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}

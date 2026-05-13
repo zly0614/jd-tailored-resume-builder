@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}配置 JD - Jianli Creator{% endblock %}
+
+{% block hero %}
+<h1>第三步：上传岗位 JD 并生成定制简历</h1>
+<p>这一页只做岗位目标配置。你的简历知识库已经在上一步形成，现在可以补充旧简历内容、输入 JD、选择模型和导出方式。</p>
+{% endblock %}
+
+{% block body %}
+<div class="progress">
+  <div class="progress-step">1. 选择模板</div>
+  <div class="progress-step">2. 建立知识库</div>
+  <div class="progress-step active">3. 上传 JD 并生成</div>
+  <div class="progress-step">4. 查看结果</div>
+</div>
+
+<div class="layout-2">
+  <section class="panel">
+    <div class="section-label"><span class="step-dot">3</span> JD 定制阶段</div>
+    <h2 class="section-title">配置目标岗位和生成参数</h2>
+    <p class="hint">当前模板：<strong>{{ selected_template.label }}</strong>。如果你想修改知识库内容，可以返回上一步继续编辑。</p>
+
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="/generate">
+      <input type="hidden" name="template_name" value="{{ template_name }}">
+      <textarea class="textarea-xl" name="profile_text" style="display:none;">{{ profile_text }}</textarea>
+
+      <div class="stack">
+        <div class="card">
+          <label for="supplement_text">补充资料 / 旧简历内容</label>
+          <textarea id="supplement_text" name="supplement_text" class="textarea-tall" placeholder="粘贴历史简历、项目补充、对话修改意见，作为知识库补充上下文。">{{ supplement_text }}</textarea>
+        </div>
+
+        <div class="card">
+          <label for="jd_text">目标岗位 JD</label>
+          <textarea id="jd_text" name="jd_text" class="textarea-tall" placeholder="粘贴岗位描述">{{ jd_text }}</textarea>
+        </div>
+
+        <div class="card">
+          <div class="fields-3">
+            <div>
+              <label for="mode">生成模式</label>
+              <select id="mode" name="mode">
+                <option value="llm" {% if mode == "llm" %}selected{% endif %}>llm</option>
+                <option value="heuristic" {% if mode == "heuristic" %}selected{% endif %}>heuristic</option>
+              </select>
+            </div>
+            <div>
+              <label for="language">简历语言</label>
+              <select id="language" name="language">
+                <option value="zh" {% if language == "zh" %}selected{% endif %}>Chinese</option>
+                <option value="en" {% if language == "en" %}selected{% endif %}>English</option>
+              </select>
+            </div>
+            <div>
+              <label for="compile_pdf">导出格式</label>
+              <select id="compile_pdf" name="compile_pdf">
+                <option value="true" {% if compile_pdf %}selected{% endif %}>generate tex + pdf</option>
+                <option value="false" {% if not compile_pdf %}selected{% endif %}>generate tex only</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="fields-2">
+            <div>
+              <label for="memory_file">反馈记忆文件</label>
+              <input id="memory_file" name="memory_file" type="text" value="{{ memory_file }}">
+            </div>
+            <div>
+              <label for="llm_model">LLM Model</label>
+              <input id="llm_model" name="llm_model" type="text" value="{{ llm_model }}">
+            </div>
+            <div>
+              <label for="llm_base_url">LLM Base URL</label>
+              <input id="llm_base_url" name="llm_base_url" type="text" value="{{ llm_base_url }}">
+            </div>
+            <div>
+              <label for="llm_api_key">LLM API Key</label>
+              <input id="llm_api_key" name="llm_api_key" type="password" value="{{ llm_api_key }}">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="ghost" type="submit" formaction="/profile-builder">返回修改知识库</button>
+        <button type="submit" class="primary">生成岗位定制简历</button>
+      </div>
+    </form>
+  </section>
+
+  <aside class="panel">
+    <div class="section-label"><span class="step-dot">预览</span> 当前模板</div>
+    <h2 class="section-title">{{ selected_template.label }}</h2>
+    <img class="template-preview" src="{{ selected_template.preview_image }}" alt="{{ selected_template.label }}">
+    <p class="meta-note" style="margin-top: 14px;">{{ selected_template.description }}</p>
+    <div class="card" style="margin-top: 16px;">
+      <label for="profile_snapshot">当前知识库 JSON</label>
+      <textarea id="profile_snapshot" class="textarea-xl" readonly spellcheck="false">{{ profile_text }}</textarea>
+    </div>
+  </aside>
+</div>
+{% endblock %}

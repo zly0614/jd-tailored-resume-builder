@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block title %}建立知识库 - Jianli Creator{% endblock %}
+
+{% block hero %}
+<h1>第二步：按阶段建立个人简历知识库</h1>
+<p>这一页只负责录入和整理长期资料，不混入 JD 或生成结果。完成后我们会跳到下一页专门配置岗位 JD 和模型参数。</p>
+{% endblock %}
+
+{% block body %}
+<div class="progress">
+  <div class="progress-step">1. 选择模板</div>
+  <div class="progress-step active">2. 建立知识库</div>
+  <div class="progress-step">3. 上传 JD 并生成</div>
+  <div class="progress-step">4. 查看结果</div>
+</div>
+
+<section class="panel">
+  <div class="section-label"><span class="step-dot">2</span> 建档阶段</div>
+  <h2 class="section-title">录入个人信息、工作经历、教育经历和技能</h2>
+  <p class="hint">当前模板：<strong>{{ selected_template.label }}</strong>。这一页录入的内容会实时同步成知识库 JSON，并带到下一阶段。</p>
+
+  <form method="post" action="/customize" id="profile_form">
+    <input type="hidden" name="template_name" value="{{ template_name }}">
+    <textarea id="profile_text" name="profile_text" class="textarea-xl" style="display:none;" spellcheck="false">{{ profile_text }}</textarea>
+
+    <div class="stack">
+      <div class="card">
+        <label for="basic_name">个人信息</label>
+        <div class="fields-2">
+          <input id="basic_name" type="text" placeholder="姓名">
+          <input id="basic_title" type="text" placeholder="当前职位 / 期望方向">
+          <input id="basic_email" type="text" placeholder="邮箱">
+          <input id="basic_phone" type="text" placeholder="手机号">
+          <input id="basic_location" type="text" placeholder="所在地">
+          <input id="basic_links" type="text" placeholder="链接，逗号分隔，例如 GitHub, LinkedIn, 作品集">
+        </div>
+        <div style="margin-top: 12px;">
+          <label for="summary_text">个人概述</label>
+          <textarea id="summary_text" placeholder="写 1 到 3 段可复用的职业概述，换行分隔。"></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <label>工作经历</label>
+        <p class="hint">建议每一段写出职责、场景、动作和结果。下一阶段生成岗位简历时会优先抽取更相关的内容。</p>
+        <div id="work_list" class="builder-list"></div>
+        <div class="actions">
+          <button class="ghost" type="button" id="add_work">新增工作经历</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <label>教育经历</label>
+        <div id="education_list" class="builder-list"></div>
+        <div class="actions">
+          <button class="ghost" type="button" id="add_education">新增教育经历</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <label for="skills_text">技能</label>
+        <p class="hint">每行一个分类，格式示例：`产品能力: 需求分析, PRD, 用户研究`</p>
+        <textarea id="skills_text" placeholder="技能分类"></textarea>
+      </div>
+
+      <div class="card">
+        <label>项目经历（可选）</label>
+        <div id="project_list" class="builder-list"></div>
+        <div class="actions">
+          <button class="ghost" type="button" id="add_project">新增项目经历</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <label for="profile_preview">知识库 JSON 预览</label>
+        <textarea id="profile_preview" class="textarea-xl" readonly spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="button-link ghost" href="/">返回模板选择</a>
+      <button type="submit" class="primary">下一步：配置岗位 JD</button>
+    </div>
+  </form>
+</section>
+
+<script>
+  const initialBuilderState = JSON.parse({{ builder_seed | tojson }});
+  const profileText = document.getElementById("profile_text");
+  const profilePreview = document.getElementById("profile_preview");
+  const workList = document.getElementById("work_list");
+  const educationList = document.getElementById("education_list");
+  const projectList = document.getElementById("project_list");
+
+  const builderState = {
+    basic_info: initialBuilderState.basic_info || { name: "", title: "", email: "", phone: "", location: "", links: [] },
+    summary_options: initialBuilderState.summary_options || [""],
+    skills: initialBuilderState.skills || { "Core Skills": [] },
+    work_experiences: initialBuilderState.work_experiences || [],
+    project_experiences: initialBuilderState.project_experiences || [],
+    education: initialBuilderState.education || []
+  };
+
+  function splitLines(value) {
+    return value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
+  }
+
+  function splitComma(value) {
+    return value.split(",").map((item) => item.trim()).filter(Boolean);
+  }
+
+  function serializeSkills(rawValue) {
+    const result = {};
+    splitLines(rawValue).forEach((line) => {
+      const parts = line.split(":");
+      if (parts.length < 2) return;
+      const category = parts[0].trim();
+      const values = parts.slice(1).join(":");
+      if (category) result[category] = splitComma(values);
+    });
+    return result;
+  }
+
+  function formatSkills(skills) {
+    return Object.entries(skills).map(([category, items]) => `${category}: ${items.join(", ")}`).join("\n");
+  }
+
+  function esc(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function workTemplate(item, index) {
+    return `
+      <div class="builder-item" data-index="${index}">
+        <div class="fields-3">
+          <input type="text" placeholder="公司" data-field="company" value="${esc(item.company)}">
+          <input type="text" placeholder="岗位" data-field="title" value="${esc(item.title)}">
+          <input type="text" placeholder="地点" data-field="location" value="${esc(item.location)}">
+          <input type="text" placeholder="开始时间" data-field="start" value="${esc(item.start)}">
+          <input type="text" placeholder="结束时间" data-field="end" value="${esc(item.end)}">
+          <input type="text" placeholder="标签，逗号分隔" data-field="tags" value="${esc((item.tags || []).join(", "))}">
+        </div>
+        <div style="margin-top: 10px;">
+          <textarea data-field="bullets" placeholder="每行一条经历要点">${esc((item.bullets || []).join("\n"))}</textarea>
+        </div>
+        <div class="actions">
+          <button type="button" class="danger" data-remove="work">删除</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function projectTemplate(item, index) {
+    return `
+      <div class="builder-item" data-index="${index}">
+        <div class="fields-3">
+          <input type="text" placeholder="项目名称" data-field="name" value="${esc(item.name)}">
+          <input type="text" placeholder="角色" data-field="role" value="${esc(item.role)}">
+          <input type="text" placeholder="标签，逗号分隔" data-field="tags" value="${esc((item.tags || []).join(", "))}">
+          <input type="text" placeholder="开始时间" data-field="start" value="${esc(item.start)}">
+          <input type="text" placeholder="结束时间" data-field="end" value="${esc(item.end)}">
+        </div>
+        <div style="margin-top: 10px;">
+          <textarea data-field="bullets" placeholder="每行一条项目要点">${esc((item.bullets || []).join("\n"))}</textarea>
+        </div>
+        <div class="actions">
+          <button type="button" class="danger" data-remove="project">删除</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function educationTemplate(item, index) {
+    return `
+      <div class="builder-item" data-index="${index}">
+        <div class="fields-3">
+          <input type="text" placeholder="学校" data-field="school" value="${esc(item.school)}">
+          <input type="text" placeholder="学历" data-field="degree" value="${esc(item.degree)}">
+          <input type="text" placeholder="专业" data-field="major" value="${esc(item.major)}">
+          <input type="text" placeholder="开始时间" data-field="start" value="${esc(item.start)}">
+          <input type="text" placeholder="结束时间" data-field="end" value="${esc(item.end)}">
+        </div>
+        <div class="actions">
+          <button type="button" class="danger" data-remove="education">删除</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderLists() {
+    workList.innerHTML = builderState.work_experiences.length
+      ? builderState.work_experiences.map(workTemplate).join("")
+      : '<p class="placeholder">还没有工作经历，点击下方按钮新增。</p>';
+    projectList.innerHTML = builderState.project_experiences.length
+      ? builderState.project_experiences.map(projectTemplate).join("")
+      : '<p class="placeholder">项目经历是可选项，适合补充亮点项目。</p>';
+    educationList.innerHTML = builderState.education.length
+      ? builderState.education.map(educationTemplate).join("")
+      : '<p class="placeholder">还没有教育经历，点击下方按钮新增。</p>';
+  }
+
+  function syncProfileText() {
+    builderState.basic_info = {
+      name: document.getElementById("basic_name").value.trim(),
+      title: document.getElementById("basic_title").value.trim(),
+      email: document.getElementById("basic_email").value.trim(),
+      phone: document.getElementById("basic_phone").value.trim(),
+      location: document.getElementById("basic_location").value.trim(),
+      links: splitComma(document.getElementById("basic_links").value),
+      photo_path: ""
+    };
+    builderState.summary_options = splitLines(document.getElementById("summary_text").value);
+    builderState.skills = serializeSkills(document.getElementById("skills_text").value);
+
+    const payload = {
+      basic_info: builderState.basic_info,
+      summary_options: builderState.summary_options,
+      skills: builderState.skills,
+      work_experiences: builderState.work_experiences,
+      project_experiences: builderState.project_experiences,
+      education: builderState.education,
+      certificates: []
+    };
+    const serialized = JSON.stringify(payload, null, 2);
+    profileText.value = serialized;
+    profilePreview.value = serialized;
+  }
+
+  function fillBasicFields() {
+    document.getElementById("basic_name").value = builderState.basic_info.name || "";
+    document.getElementById("basic_title").value = builderState.basic_info.title || "";
+    document.getElementById("basic_email").value = builderState.basic_info.email || "";
+    document.getElementById("basic_phone").value = builderState.basic_info.phone || "";
+    document.getElementById("basic_location").value = builderState.basic_info.location || "";
+    document.getElementById("basic_links").value = (builderState.basic_info.links || []).join(", ");
+    document.getElementById("summary_text").value = (builderState.summary_options || []).join("\n");
+    document.getElementById("skills_text").value = formatSkills(builderState.skills || {});
+  }
+
+  function refresh() {
+    renderLists();
+    fillBasicFields();
+    syncProfileText();
+  }
+
+  function bindListUpdates(container, stateKey) {
+    container.addEventListener("input", (event) => {
+      const item = event.target.closest(".builder-item");
+      if (!item) return;
+      const index = Number(item.dataset.index);
+      const field = event.target.dataset.field;
+      const target = builderState[stateKey][index];
+      if (!field || !target) return;
+      if (field === "tags" || field === "links") target[field] = splitComma(event.target.value);
+      else if (field === "bullets") target[field] = splitLines(event.target.value);
+      else target[field] = event.target.value;
+      syncProfileText();
+    });
+
+    container.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-remove]");
+      if (!button) return;
+      const item = event.target.closest(".builder-item");
+      const index = Number(item.dataset.index);
+      builderState[stateKey].splice(index, 1);
+      refresh();
+    });
+  }
+
+  document.getElementById("add_work").addEventListener("click", () => {
+    builderState.work_experiences.push({ company: "", title: "", start: "", end: "", location: "", tags: [], bullets: [] });
+    refresh();
+  });
+  document.getElementById("add_project").addEventListener("click", () => {
+    builderState.project_experiences.push({ name: "", role: "", start: "", end: "", tags: [], bullets: [] });
+    refresh();
+  });
+  document.getElementById("add_education").addEventListener("click", () => {
+    builderState.education.push({ school: "", degree: "", major: "", start: "", end: "" });
+    refresh();
+  });
+
+  ["basic_name", "basic_title", "basic_email", "basic_phone", "basic_location", "basic_links", "summary_text", "skills_text"]
+    .forEach((id) => document.getElementById(id).addEventListener("input", syncProfileText));
+
+  bindListUpdates(workList, "work_experiences");
+  bindListUpdates(projectList, "project_experiences");
+  bindListUpdates(educationList, "education");
+  document.getElementById("profile_form").addEventListener("submit", syncProfileText);
+  refresh();
+</script>
+{% endblock %}

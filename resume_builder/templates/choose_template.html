@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}选择模板 - Jianli Creator{% endblock %}
+
+{% block hero %}
+<h1>先选简历模板，再进入建档流程</h1>
+<p>模板选择是第一阶段。这里不再把所有动作塞进一个页面，而是让用户先明确输出风格，再逐步进入信息录入、JD 定制和结果确认。</p>
+{% endblock %}
+
+{% block body %}
+<div class="progress">
+  <div class="progress-step active">1. 选择模板</div>
+  <div class="progress-step">2. 建立知识库</div>
+  <div class="progress-step">3. 上传 JD 并生成</div>
+  <div class="progress-step">4. 查看结果</div>
+</div>
+
+<section class="panel">
+  <div class="section-label"><span class="step-dot">1</span> 模板阶段</div>
+  <h2 class="section-title">选择你要使用的简历模板图片</h2>
+  <p class="hint">模板卡片支持直接展示模板预览图。后续新增模板时，只需要扩展模板注册和预览图资源即可。</p>
+
+  <form method="post" action="/profile-builder">
+    <div class="template-grid">
+      {% for template in template_options %}
+        <label class="template-card {% if template_name == template.key %}active{% endif %}" data-template-card>
+          <input type="radio" name="template_name" value="{{ template.key }}" {% if template_name == template.key %}checked{% endif %}>
+          <img class="template-preview" src="{{ template.preview_image }}" alt="{{ template.label }}">
+          <div class="template-copy">
+            <div class="template-chip">Template Preview</div>
+            <h3 style="margin: 0 0 8px;">{{ template.label }}</h3>
+            <p class="hint">{{ template.description }}</p>
+          </div>
+        </label>
+      {% endfor %}
+    </div>
+    <div class="actions">
+      <button type="submit" class="primary">下一步：填写个人信息</button>
+    </div>
+  </form>
+</section>
+
+<script>
+  document.querySelectorAll("[data-template-card]").forEach((card) => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll("[data-template-card]").forEach((other) => other.classList.remove("active"));
+      card.classList.add("active");
+    });
+  });
+</script>
+{% endblock %}

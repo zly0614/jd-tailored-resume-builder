@@ -4,22 +4,33 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+from .draft import build_resume_draft
 from .jd_parser import parse_job_description
-from .latex_renderer import render_resume_latex
+from .latex_renderer import render_resume_latex_from_draft
 from .llm import LLMEnhancer
 from .memory import append_feedback, load_memory_context
+from .models import LLMConfig
+from .pdf import compile_tex_to_pdf
 from .profile_loader import load_profile, load_profile_from_text
 from .ranking import build_ranked_resume
+from .template_registry import get_template
 
 
 @dataclass
 class GenerationResult:
+    draft: dict
     latex: str
     output_path: str
     target_title: str
     used_model: str
     used_llm: bool
     fallback_reason: str
+    pdf_path: str
+    pdf_message: str
+    pdf_engine: str
+    pdf_log_path: str
+    language: str
+    template_name: str
 
 
 def generate_resume(
@@ -32,6 +43,11 @@ def generate_resume(
     work_limit: int = 4,
     project_limit: int = 3,
     skill_limit: int = 12,
+    compile_pdf: bool = False,
+    language: str = "en",
+    template_name: str = "modern_blocks",
+    llm_config: LLMConfig | None = None,
+    extra_context: str = "",
 ) -> GenerationResult:
     profile = load_profile(profile_path)
     return _generate_from_profile(
@@ -43,6 +59,11 @@ def generate_resume(
         work_limit=work_limit,
         project_limit=project_limit,
         skill_limit=skill_limit,
+        compile_pdf=compile_pdf,
+        language=language,
+        template_name=template_name,
+        llm_config=llm_config,
+        extra_context=extra_context,
     )
 
 
@@ -56,6 +77,11 @@ def generate_resume_from_text(
     work_limit: int = 4,
     project_limit: int = 3,
     skill_limit: int = 12,
+    compile_pdf: bool = False,
+    language: str = "en",
+    template_name: str = "modern_blocks",
+    llm_config: LLMConfig | None = None,
+    extra_context: str = "",
 ) -> GenerationResult:
     profile = load_profile_from_text(profile_text)
     return _generate_from_profile(
@@ -67,6 +93,11 @@ def generate_resume_from_text(
         work_limit=work_limit,
         project_limit=project_limit,
         skill_limit=skill_limit,
+        compile_pdf=compile_pdf,
+        language=language,
+        template_name=template_name,
+        llm_config=llm_config,
+        extra_context=extra_context,
     )
 
 
@@ -102,36 +133,76 @@ def _generate_from_profile(
     work_limit: int,
     project_limit: int,
     skill_limit: int,
+    compile_pdf: bool,
+    language: str,
+    template_name: str,
+    llm_config: LLMConfig | None,
+    extra_context: str,
 ) -> GenerationResult:
     jd = parse_job_description(jd_text)
-    memory_context = load_memory_context(memory_file)
+    memory_context = _merge_context(load_memory_context(memory_file), extra_context)
     ranked_resume = build_ranked_resume(
         profile=profile,
         jd=jd,
         work_limit=work_limit,
         project_limit=project_limit,
         skill_limit=skill_limit,
+        language=language,
     )
 
-    llm = LLMEnhancer()
+    llm = LLMEnhancer.from_config(llm_config or LLMConfig())
     fallback_reason = ""
     used_llm = False
     if mode == "llm":
         used_llm = llm.is_available()
-        ranked_resume = llm.enhance(profile, jd, ranked_resume, memory_context=memory_context)
+        ranked_resume = llm.enhance(profile, jd, ranked_resume, memory_context=memory_context, language=language)
         if not used_llm:
             fallback_reason = "OPENAI_API_KEY not found. Fell back to heuristic generation."
 
-    latex = render_resume_latex(profile, ranked_resume)
+    rendered_profile = profile
+    rendered_resume = ranked_resume
+    if used_llm:
+        rendered_profile, rendered_resume = llm.localize_resume(profile, ranked_resume, language=language)
+
+    template = get_template(template_name)
+    draft = build_resume_draft(rendered_profile, rendered_resume, language=language)
+    latex = render_resume_latex_from_draft(draft, template_name=template.key)
     destination = Path(out_path)
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(latex, encoding="utf-8")
 
+    pdf_path = ""
+    pdf_message = ""
+    pdf_engine = ""
+    pdf_log_path = ""
+    if compile_pdf:
+        pdf_result = compile_tex_to_pdf(destination)
+        pdf_path = pdf_result.pdf_path
+        pdf_message = pdf_result.message
+        pdf_engine = pdf_result.engine
+        pdf_log_path = pdf_result.log_path
+
     return GenerationResult(
+        draft=draft.to_dict(),
         latex=latex,
         output_path=str(destination),
-        target_title=ranked_resume.target_title,
+        target_title=rendered_resume.target_title,
         used_model=llm.model if used_llm else "heuristic",
         used_llm=used_llm,
         fallback_reason=fallback_reason,
+        pdf_path=pdf_path,
+        pdf_message=pdf_message,
+        pdf_engine=pdf_engine,
+        pdf_log_path=pdf_log_path,
+        language=language,
+        template_name=template.key,
     )
+
+
+def _merge_context(memory_context: str, extra_context: str) -> str:
+    extra_context = extra_context.strip()
+    if not extra_context:
+        return memory_context
+    if not memory_context:
+        return f"[Supplemental Resume Notes]\n{extra_context}"
+    return f"{memory_context}\n\n[Supplemental Resume Notes]\n{extra_context}"
