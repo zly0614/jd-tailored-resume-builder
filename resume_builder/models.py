@@ -11,6 +11,7 @@ class BasicInfo:
     phone: str
     location: str
     links: list[str] = field(default_factory=list)
+    photo_path: str = ""
 
 
 @dataclass
@@ -75,3 +76,10 @@ class RankedResume:
     highlighted_skills: list[str]
     work_experiences: list[WorkExperience]
     project_experiences: list[ProjectExperience]
+
+
+@dataclass
+class LLMConfig:
+    model: str = ""
+    base_url: str = ""
+    api_key: str = ""

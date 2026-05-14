@@ -11,9 +11,10 @@ def _score_text_fragments(fragments: list[str], keywords: list[str], tags: list[
     counts = Counter(combined.split())
 
     for keyword in keywords:
-        if keyword in combined:
+        lowered = keyword.lower()
+        if lowered in combined:
             score += 3
-        score += counts.get(keyword, 0)
+        score += counts.get(lowered, 0)
 
     return score
 
@@ -53,11 +54,34 @@ def _build_summary(profile: CandidateProfile, jd: JobDescription) -> str:
         )
         seed = ranked[0]
     else:
-        seed = f"{profile.basic_info.title} with experience in cross-functional delivery, project execution, and business impact."
+        seed = (
+            f"{profile.basic_info.title} with experience in cross-functional delivery, "
+            "project execution, and business impact."
+        )
 
     top_keywords = ", ".join(jd.keywords[:6])
     if top_keywords:
         return f"{seed} This version emphasizes experience related to {top_keywords}."
+    return seed
+
+
+def _build_summary_zh(profile: CandidateProfile, jd: JobDescription) -> str:
+    if profile.summary_options:
+        ranked = sorted(
+            profile.summary_options,
+            key=lambda item: _score_text_fragments([item], jd.keywords, []),
+            reverse=True,
+        )
+        seed = ranked[0]
+    else:
+        seed = (
+            f"具备丰富的{profile.basic_info.title}经验，擅长需求分析、方案拆解、"
+            "跨团队协同推进与结果复盘。"
+        )
+
+    top_keywords = "、".join(jd.keywords[:6])
+    if top_keywords:
+        return f"{seed} 本版内容重点突出与{top_keywords}相关的项目经历、业务成果与方法论积累。"
     return seed
 
 
@@ -68,12 +92,20 @@ def _flatten_skills(skills: dict[str, list[str]]) -> list[str]:
     return result
 
 
+def _guess_target_title(jd: JobDescription, language: str) -> str:
+    first_line = jd.raw_text.strip().splitlines()[0] if jd.raw_text.strip() else ""
+    if 2 <= len(first_line) <= 40:
+        return first_line
+    return "目标岗位" if language == "zh" else "Target Role"
+
+
 def build_ranked_resume(
     profile: CandidateProfile,
     jd: JobDescription,
     work_limit: int = 4,
     project_limit: int = 3,
     skill_limit: int = 12,
+    language: str = "en",
 ) -> RankedResume:
     all_skills = _flatten_skills(profile.skills)
     highlighted_skills = sorted(
@@ -86,16 +118,9 @@ def build_ranked_resume(
     ranked_projects = _select_top_project_items(profile.project_experiences, jd.keywords, project_limit)
 
     return RankedResume(
-        target_title=_guess_target_title(jd),
-        summary=_build_summary(profile, jd),
+        target_title=_guess_target_title(jd, language),
+        summary=_build_summary(profile, jd) if language == "en" else _build_summary_zh(profile, jd),
         highlighted_skills=highlighted_skills,
         work_experiences=ranked_work,
         project_experiences=ranked_projects,
     )
-
-
-def _guess_target_title(jd: JobDescription) -> str:
-    first_line = jd.raw_text.strip().splitlines()[0] if jd.raw_text.strip() else ""
-    if 2 <= len(first_line) <= 40:
-        return first_line
-    return "Target Role"

@@ -1,13 +1,13 @@
-AI Product Manager
+高级 AI 产品经理
 
-Responsibilities:
-- Own requirement analysis, feature design, and roadmap planning for AI application products.
-- Work with engineering, design, and business teams to bring products from concept to launch.
-- Build enterprise assistants using LLM, knowledge-base, and workflow capabilities.
-- Track product metrics and continuously improve user experience and business impact.
+岗位职责：
+- 负责大模型应用产品的需求分析、功能设计与版本规划。
+- 与算法、研发、设计和业务团队协同，推动产品从方案到上线落地。
+- 结合知识库、工作流与智能体能力，建设企业级智能助手产品。
+- 关注数据指标与用户体验，持续优化业务效果。
 
-Requirements:
-- 3+ years of product management experience, preferably in B2B or SaaS products.
-- Familiarity with LLM, RAG, knowledge bases, and prompt engineering.
-- Strong communication and cross-functional delivery skills.
-- Experience in data analysis, process design, and automation tools is a plus.
+任职要求：
+- 具备 3 年以上产品经理经验，有 B 端或 SaaS 产品背景优先。
+- 熟悉 LLM、RAG、知识库、Prompt Engineering 等 AI 应用方向。
+- 具备良好的沟通推动能力，能够独立推进复杂跨团队项目。
+- 有数据分析、流程设计、自动化工具建设经验者优先。

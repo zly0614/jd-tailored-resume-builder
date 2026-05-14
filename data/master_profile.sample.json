@@ -1,92 +1,124 @@
 {
   "basic_info": {
-    "name": "Alex Chen",
-    "title": "Senior Product Manager / AI Applications",
-    "email": "alex.chen@example.com",
+    "name": "张皓淼",
+    "title": "高级 AI 产品经理",
+    "email": "zhanghaomiao@example.com",
     "phone": "+86 138-0000-0000",
-    "location": "Shanghai",
+    "location": "上海",
     "links": [
       "LinkedIn: linkedin.com/in/example",
       "GitHub: github.com/example",
-      "Portfolio: example.com"
-    ]
+      "作品集: example.com"
+    ],
+    "photo_path": ""
   },
   "summary_options": [
-    "8 years of experience across internet products and enterprise software, with end-to-end ownership from discovery to launch and iteration.",
-    "Focused on AI applications, data products, and workflow automation, with strong cross-functional delivery experience.",
-    "Experienced in turning ambiguous business problems into shippable product plans with measurable business outcomes."
+    "拥有 8 年企业级产品规划与交付经验，长期负责智能化产品、知识库系统与流程自动化平台建设，擅长从业务目标出发完成需求拆解、方案设计、版本推进与效果复盘。",
+    "聚焦大模型应用、知识库产品与流程自动化，能够将复杂业务问题沉淀为标准化流程，并推动研发、算法、设计、运营团队协同交付。",
+    "具备从 0 到 1 规划智能产品、从 1 到 N 推进规模化落地的完整经验，熟悉需求分析、数据指标、项目管理与用户增长方法。"
   ],
   "skills": {
-    "product": ["Requirement Analysis", "Roadmapping", "PRD", "User Research", "A/B Testing", "Process Design"],
-    "data": ["SQL", "Data Analysis", "Metrics Design", "Tableau", "Power BI"],
-    "ai": ["LLM", "RAG", "Prompt Engineering", "Knowledge Base", "Workflow Automation"],
-    "collaboration": ["Project Management", "Cross-functional Collaboration", "Agile Delivery", "Stakeholder Management"]
+    "产品能力": [
+      "需求分析",
+      "产品规划",
+      "PRD",
+      "用户研究",
+      "流程设计",
+      "版本管理"
+    ],
+    "数据能力": [
+      "SQL",
+      "数据分析",
+      "指标体系",
+      "A/B 测试",
+      "Tableau",
+      "Power BI"
+    ],
+    "AI 能力": [
+      "LLM",
+      "RAG",
+      "Prompt Engineering",
+      "知识库构建",
+      "工作流设计",
+      "Agent 应用设计"
+    ],
+    "项目管理": [
+      "项目管理",
+      "跨团队协同",
+      "风险控制",
+      "需求优先级管理",
+      "Stakeholder Management"
+    ]
   },
   "work_experiences": [
     {
-      "company": "Smart Enterprise Tech",
-      "title": "Senior Product Manager",
+      "company": "某智能科技有限公司",
+      "title": "高级 AI 产品经理",
       "start": "2021.03",
-      "end": "Present",
-      "location": "Shanghai",
-      "tags": ["AI", "Knowledge Base", "SaaS", "Automation"],
+      "end": "至今",
+      "location": "上海",
+      "tags": ["AI", "知识库", "SaaS", "工作流"],
       "bullets": [
-        "Led the design of an enterprise knowledge-base assistant used across support, sales, and internal operations.",
-        "Shipped an LLM-based retrieval pipeline that improved document QA accuracy by 25 percent.",
-        "Worked with engineering, applied AI, and implementation teams to reduce customer onboarding time."
+        "负责企业知识库问答助手与流程自动化平台的产品规划，覆盖客服、销售、运营等多个业务场景，累计支持 50 余家客户上线。",
+        "主导基于大模型的检索增强方案落地，推动文档解析、知识切片、召回排序与答案生成链路打通，使复杂问答准确率提升 25%。",
+        "搭建可配置工作流与权限管理能力，缩短客户交付周期并降低实施依赖，推动重点客户从 PoC 快速进入规模化使用阶段。"
       ]
     },
     {
-      "company": "Enterprise Platform Co",
-      "title": "Product Manager",
+      "company": "某企业服务平台",
+      "title": "产品经理",
       "start": "2018.06",
       "end": "2021.02",
-      "location": "Hangzhou",
-      "tags": ["Data Product", "B2B", "Process Optimization"],
+      "location": "杭州",
+      "tags": ["数据中台", "B 端", "流程优化"],
       "bullets": [
-        "Owned roadmap planning for a shared data platform supporting multiple business lines.",
-        "Designed approval and task-routing modules that cut core operations processing time by 40 percent.",
-        "Improved cross-team execution through a structured intake and prioritization process."
+        "负责数据中台产品规划与版本管理，统一多个业务线指标口径与分析框架，支撑运营、销售、财务等部门的经营分析需求。",
+        "设计权限、审批、任务流转等核心模块，推动核心流程线上化，帮助运营团队将流程处理时长缩短 40%。",
+        "建立需求池、优先级评审与发布复盘机制，提升跨部门协同效率与版本交付节奏。"
       ]
     }
   ],
   "project_experiences": [
     {
-      "name": "AI Resume Tailoring Assistant",
-      "role": "Project Lead",
+      "name": "智能简历生成助手",
+      "role": "项目负责人",
       "start": "2024.01",
       "end": "2024.06",
-      "tags": ["LLM", "RAG", "Resume Generation", "LaTeX"],
+      "tags": ["LLM", "RAG", "简历生成", "LaTeX"],
       "bullets": [
-        "Designed a master-profile schema and JD matching strategy for generating multiple resumes from one profile.",
-        "Introduced LaTeX-based resume output for consistency and delivery speed.",
-        "Built keyword ranking and highlight selection logic to surface the best-fit experience for each role."
+        "围绕“主档案 + 岗位 JD + 多版本输出”的场景设计整体产品方案，定义履历知识库结构、关键词匹配策略与生成结果评估标准。",
+        "搭建基于大模型的简历生成链路，将候选人长期履历、目标岗位要求与历史反馈统一纳入上下文，使输出内容兼顾真实性、相关性与可读性。",
+        "设计 LaTeX 模板体系与 PDF 编译能力，支持中英文切换、照片位预留、版式调整与网页端一键导出，提升交付专业度。",
+        "引入 memory.md 反馈闭环，沉淀用户对措辞、风格、重点排序的修改意见，为后续生成提供个性化偏好参考。",
+        "通过项目实践验证简历生成、反馈回写、模板迭代的完整闭环，使同一份主档案能够快速适配不同岗位的投递需求。"
       ]
     },
     {
-      "name": "Internal Knowledge QA Platform",
-      "role": "Product Owner",
+      "name": "内部知识问答平台",
+      "role": "产品负责人",
       "start": "2023.02",
       "end": "2023.11",
-      "tags": ["Knowledge Base", "Semantic Retrieval", "Workflow"],
+      "tags": ["知识库", "问答系统", "工作流"],
       "bullets": [
-        "Owned the platform from discovery to rollout, including document ingestion, permissions, and answer tracing.",
-        "Improved first-answer hit rate by optimizing chunking and retrieval quality."
+        "负责内部知识问答平台从需求调研、方案设计到上线迭代的全流程建设，覆盖文档接入、权限治理、检索配置与答案追踪。",
+        "联合算法与后端团队完成知识切片、召回策略与重排逻辑优化，提高用户首问命中率并降低重复咨询量。",
+        "围绕运营、售前、实施等角色梳理高频问题场景，设计问题反馈、知识修订与效果复盘机制，持续提升知识库内容质量。",
+        "建立平台指标看板，跟踪提问量、命中率、追问率与人工转接率，为产品迭代提供量化依据。"
       ]
     }
   ],
   "education": [
     {
-      "school": "Fudan University",
-      "degree": "Master",
-      "major": "Information Management",
+      "school": "复旦大学",
+      "degree": "硕士",
+      "major": "信息管理",
       "start": "2014",
       "end": "2017"
     },
     {
-      "school": "East China University of Science and Technology",
-      "degree": "Bachelor",
-      "major": "E-Commerce",
+      "school": "华东理工大学",
+      "degree": "学士",
+      "major": "电子商务",
       "start": "2010",
       "end": "2014"
     }
