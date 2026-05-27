@@ -7,6 +7,7 @@ from pathlib import Path
 from .latex_setup import install_latex
 from .models import LLMConfig
 from .service import generate_resume, store_feedback
+from .template_registry import DEFAULT_TEMPLATE_KEY
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -22,7 +23,7 @@ def build_parser() -> argparse.ArgumentParser:
     generate.add_argument("--skill-limit", type=int, default=12, help="Maximum number of skills to include.")
     generate.add_argument("--mode", choices=["heuristic", "llm"], default="llm", help="Resume generation mode.")
     generate.add_argument("--language", choices=["zh", "en"], default="zh", help="Resume output language.")
-    generate.add_argument("--template", default="modern_blocks", help="Resume template key.")
+    generate.add_argument("--template", default=DEFAULT_TEMPLATE_KEY, help="Resume template key.")
     generate.add_argument("--memory-file", default="memory.md", help="Path to the feedback memory markdown file.")
     generate.add_argument("--feedback", default="", help="Optional inline user feedback to append after generation.")
     generate.add_argument("--skip-feedback", action="store_true", help="Skip interactive feedback collection.")

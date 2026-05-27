@@ -105,7 +105,10 @@ resume_builder/
   template_registry.py
   web.py
   static/
+    template_files/
+      zhang_leyan_default.doc
     template_previews/
+      zhang_leyan_default.svg
       modern_blocks.svg
   templates/
     base.html

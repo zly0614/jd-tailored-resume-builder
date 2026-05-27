@@ -9,14 +9,18 @@ class ResumeTemplate:
     label: str
     description: str
     preview_image: str
+    source_file: str = ""
 
+
+DEFAULT_TEMPLATE_KEY = "zhang_leyan_default"
 
 TEMPLATES: list[ResumeTemplate] = [
     ResumeTemplate(
-        key="modern_blocks",
-        label="Modern Blocks",
-        description="Chinese-friendly layout with clear section dividers and block-based experience cards.",
-        preview_image="/static/template_previews/modern_blocks.svg",
+        key=DEFAULT_TEMPLATE_KEY,
+        label="张乐言默认模板",
+        description="Default resume template based on 张乐言秋招简历 - 副本.doc.",
+        preview_image="/static/template_previews/zhang_leyan_default.svg",
+        source_file="/static/template_files/zhang_leyan_default.doc",
     ),
 ]
 
@@ -35,6 +39,7 @@ def template_options() -> list[dict[str, str]]:
             "label": template.label,
             "description": template.description,
             "preview_image": template.preview_image,
+            "source_file": template.source_file,
         }
         for template in TEMPLATES
     ]

@@ -13,7 +13,7 @@ from .models import LLMConfig
 from .pdf import compile_tex_to_pdf
 from .profile_loader import load_profile, load_profile_from_text
 from .ranking import build_ranked_resume
-from .template_registry import get_template
+from .template_registry import DEFAULT_TEMPLATE_KEY, get_template
 
 
 @dataclass
@@ -45,7 +45,7 @@ def generate_resume(
     skill_limit: int = 12,
     compile_pdf: bool = False,
     language: str = "en",
-    template_name: str = "modern_blocks",
+    template_name: str = DEFAULT_TEMPLATE_KEY,
     llm_config: LLMConfig | None = None,
     extra_context: str = "",
 ) -> GenerationResult:
@@ -79,7 +79,7 @@ def generate_resume_from_text(
     skill_limit: int = 12,
     compile_pdf: bool = False,
     language: str = "en",
-    template_name: str = "modern_blocks",
+    template_name: str = DEFAULT_TEMPLATE_KEY,
     llm_config: LLMConfig | None = None,
     extra_context: str = "",
 ) -> GenerationResult:

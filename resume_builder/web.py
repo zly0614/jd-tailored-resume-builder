@@ -12,7 +12,7 @@ from .local_config import load_local_llm_config
 from .models import LLMConfig
 from .profile_loader import load_profile_from_text
 from .service import default_output_path, generate_resume_from_text, store_feedback
-from .template_registry import get_template, template_options
+from .template_registry import DEFAULT_TEMPLATE_KEY, get_template, template_options
 
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"
@@ -29,13 +29,13 @@ templates = Jinja2Templates(directory=str(TEMPLATE_DIR))
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request) -> HTMLResponse:
-    return templates.TemplateResponse(request, "choose_template.html", _template_context("modern_blocks"))
+    return templates.TemplateResponse(request, "choose_template.html", _template_context(DEFAULT_TEMPLATE_KEY))
 
 
 @app.post("/profile-builder", response_class=HTMLResponse)
 async def profile_builder(
     request: Request,
-    template_name: str = Form("modern_blocks"),
+    template_name: str = Form(DEFAULT_TEMPLATE_KEY),
     profile_text: str = Form(DEFAULT_PROFILE),
 ) -> HTMLResponse:
     return templates.TemplateResponse(
@@ -48,7 +48,7 @@ async def profile_builder(
 @app.post("/customize", response_class=HTMLResponse)
 async def customize_resume(
     request: Request,
-    template_name: str = Form("modern_blocks"),
+    template_name: str = Form(DEFAULT_TEMPLATE_KEY),
     profile_text: str = Form(DEFAULT_PROFILE),
 ) -> HTMLResponse:
     return templates.TemplateResponse(
@@ -70,7 +70,7 @@ async def generate(
     memory_file: str = Form("memory.md"),
     compile_pdf: str = Form("true"),
     language: str = Form("zh"),
-    template_name: str = Form("modern_blocks"),
+    template_name: str = Form(DEFAULT_TEMPLATE_KEY),
     llm_model: str = Form("MiMo-V2.5-Pro"),
     llm_base_url: str = Form("https://token-plan-cn.xiaomimimo.com/v1"),
     llm_api_key: str = Form(""),
@@ -160,7 +160,7 @@ async def feedback(
     pdf_path: str = Form(""),
     pdf_log_path: str = Form(""),
     language: str = Form("zh"),
-    template_name: str = Form("modern_blocks"),
+    template_name: str = Form(DEFAULT_TEMPLATE_KEY),
     llm_model: str = Form("MiMo-V2.5-Pro"),
     llm_base_url: str = Form("https://token-plan-cn.xiaomimimo.com/v1"),
     llm_api_key: str = Form(""),

@@ -5,7 +5,7 @@ from string import Template
 
 from .draft import ResumeDraft, build_resume_draft
 from .models import CandidateProfile, RankedResume
-from .template_registry import get_template
+from .template_registry import DEFAULT_TEMPLATE_KEY, get_template
 
 
 def _escape_latex(text: str) -> str:
@@ -110,11 +110,7 @@ def _render_item_section(section) -> str:
     return "\n\\vspace{0.45em}\n".join(blocks)
 
 
-def render_resume_latex_from_draft(draft: ResumeDraft, template_name: str = "modern_blocks") -> str:
-    template = get_template(template_name)
-    if template.key != "modern_blocks":
-        raise ValueError(f"Unsupported template: {template_name}")
-
+def _render_section_chunks(draft: ResumeDraft) -> list[str]:
     section_chunks: list[str] = []
     for section in draft.sections:
         chunk = [f"\\resumeSection{{{_escape_latex(section.title)}}}"]
@@ -123,7 +119,20 @@ def render_resume_latex_from_draft(draft: ResumeDraft, template_name: str = "mod
         else:
             chunk.append(_render_item_section(section))
         section_chunks.append("\n".join(chunk))
+    return section_chunks
 
+
+def render_resume_latex_from_draft(draft: ResumeDraft, template_name: str = DEFAULT_TEMPLATE_KEY) -> str:
+    template = get_template(template_name)
+    if template.key == DEFAULT_TEMPLATE_KEY:
+        return _render_zhang_leyan_default(draft)
+    if template.key == "modern_blocks":
+        return _render_modern_blocks(draft)
+    raise ValueError(f"Unsupported template: {template_name}")
+
+
+def _render_modern_blocks(draft: ResumeDraft) -> str:
+    section_chunks = _render_section_chunks(draft)
     page = Template(
         r"""\documentclass[10.5pt]{article}
 \usepackage[a4paper,margin=0.52in]{geometry}
@@ -212,11 +221,98 @@ $sections
     )
 
 
+def _render_zhang_leyan_default(draft: ResumeDraft) -> str:
+    section_chunks = _render_section_chunks(draft)
+    page = Template(
+        r"""\documentclass[10.5pt]{article}
+\usepackage[a4paper,left=0.58in,right=0.58in,top=0.5in,bottom=0.52in]{geometry}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{iftex}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\ifXeTeX
+\usepackage[UTF8]{ctex}
+\fi
+
+\definecolor{resumeink}{HTML}{111111}
+\definecolor{resumeaccent}{HTML}{333333}
+\definecolor{resumelight}{HTML}{5C5C5C}
+\definecolor{resumeline}{HTML}{B8B8B8}
+\definecolor{resumebg}{HTML}{F2F2F2}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlist[itemize]{leftmargin=1.15em, itemsep=0.1em, topsep=0.12em, parsep=0em, partopsep=0em}
+
+\newcommand{\resumeSection}[1]{%
+  \vspace{0.72em}%
+  \noindent\colorbox{resumebg}{%
+    \parbox{\dimexpr\linewidth-2\fboxsep\relax}{\bfseries\color{resumeaccent} #1}%
+  }\par
+  \vspace{0.28em}%
+}
+
+\newcommand{\resumeEntry}[2]{%
+  \begin{tabular*}{\linewidth}{@{}p{0.74\linewidth}@{\extracolsep{\fill}}>{\raggedleft\arraybackslash}p{0.22\linewidth}@{}}
+  {\bfseries\color{resumeink} #1} & {\small\color{resumelight} #2} \\
+  \end{tabular*}\par
+}
+
+\newcommand{\resumeMeta}[1]{%
+  {\small\color{resumeink} #1}\par
+}
+
+\newcommand{\resumeCard}[1]{%
+  \noindent #1
+  \vspace{0.12em}%
+  {\color{resumeline}\rule{\linewidth}{0.35pt}}\par
+}
+
+\begin{document}
+
+\begin{tabular*}{\linewidth}{@{}p{0.77\linewidth}@{\extracolsep{\fill}}p{0.17\linewidth}@{}}
+\begin{minipage}[t]{0.77\linewidth}
+\vspace{0pt}
+{\fontsize{23}{26}\selectfont\bfseries\color{resumeink} $name}\par
+\vspace{0.12em}
+{\small\color{resumeink} $contact}\par
+\vspace{0.06em}
+{\footnotesize\color{resumelight} $links}\par
+\end{minipage}
+&
+\begin{minipage}[t]{0.17\linewidth}
+\vspace{-0.22em}
+\raggedleft
+$photo
+\end{minipage}
+\end{tabular*}
+
+\vspace{0.22em}
+{\color{resumeline}\rule{\linewidth}{0.55pt}}\par
+
+$sections
+
+\end{document}
+"""
+    )
+
+    return page.substitute(
+        name=_escape_latex(draft.name),
+        contact="\\\\[0.12em]".join(_escape_latex(line) for line in draft.contact_lines),
+        links=_render_links(draft.link_lines),
+        photo=_photo_block(draft.photo_path, draft.language),
+        sections="\n\n".join(section_chunks),
+    )
+
+
 def render_resume_latex(
     profile: CandidateProfile,
     ranked_resume: RankedResume,
     language: str = "en",
-    template_name: str = "modern_blocks",
+    template_name: str = DEFAULT_TEMPLATE_KEY,
 ) -> str:
     draft = build_resume_draft(profile, ranked_resume, language=language)
     return render_resume_latex_from_draft(draft, template_name=template_name)
