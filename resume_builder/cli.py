@@ -84,7 +84,7 @@ def run_generate(args: argparse.Namespace) -> int:
         )
         print(f"Stored feedback in: {args.memory_file}")
 
-    print(f"Generated LaTeX resume at: {result.output_path}")
+    print(f"Generated resume at: {result.output_path}")
     if args.compile_pdf:
         print(result.pdf_message)
         if result.pdf_path:

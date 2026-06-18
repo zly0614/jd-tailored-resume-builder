@@ -14,6 +14,7 @@ from .pdf import compile_tex_to_pdf
 from .profile_loader import load_profile, load_profile_from_text
 from .ranking import build_ranked_resume
 from .template_registry import DEFAULT_TEMPLATE_KEY, get_template
+from .word_template import render_resume_word_template
 
 
 @dataclass
@@ -120,7 +121,7 @@ def store_feedback(
 
 def default_output_path(prefix: str = "resume_web") -> str:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return str(Path("outputs") / f"{prefix}_{timestamp}.tex")
+    return str(Path("outputs") / f"{prefix}_{timestamp}.docx")
 
 
 def _generate_from_profile(
@@ -166,21 +167,44 @@ def _generate_from_profile(
 
     template = get_template(template_name)
     draft = build_resume_draft(rendered_profile, rendered_resume, language=language)
-    latex = render_resume_latex_from_draft(draft, template_name=template.key)
+    latex = ""
     destination = Path(out_path)
     destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(latex, encoding="utf-8")
 
     pdf_path = ""
     pdf_message = ""
     pdf_engine = ""
     pdf_log_path = ""
-    if compile_pdf:
-        pdf_result = compile_tex_to_pdf(destination)
-        pdf_path = pdf_result.pdf_path
-        pdf_message = pdf_result.message
-        pdf_engine = pdf_result.engine
-        pdf_log_path = pdf_result.log_path
+
+    used_word_template = False
+    if template.key == DEFAULT_TEMPLATE_KEY and template.source_file:
+        template_file = _resolve_template_source_path(template.source_file)
+        if template_file.exists():
+            try:
+                word_result = render_resume_word_template(
+                    draft=draft,
+                    template_path=template_file,
+                    output_path=destination,
+                    compile_pdf=compile_pdf,
+                )
+                destination = Path(word_result.docx_path)
+                pdf_path = word_result.pdf_path
+                pdf_message = word_result.pdf_message
+                pdf_engine = "word-template"
+                used_word_template = True
+            except Exception as exc:
+                fallback_reason = f"Word template rendering failed. Fell back to LaTeX rendering. {exc}"
+
+    if not used_word_template:
+        latex = render_resume_latex_from_draft(draft, template_name=template.key)
+        destination = destination.with_suffix(".tex")
+        destination.write_text(latex, encoding="utf-8")
+        if compile_pdf:
+            pdf_result = compile_tex_to_pdf(destination)
+            pdf_path = pdf_result.pdf_path
+            pdf_message = pdf_result.message
+            pdf_engine = pdf_result.engine
+            pdf_log_path = pdf_result.log_path
 
     return GenerationResult(
         draft=draft.to_dict(),
@@ -206,3 +230,8 @@ def _merge_context(memory_context: str, extra_context: str) -> str:
     if not memory_context:
         return f"[Supplemental Resume Notes]\n{extra_context}"
     return f"{memory_context}\n\n[Supplemental Resume Notes]\n{extra_context}"
+
+
+def _resolve_template_source_path(source_file: str) -> Path:
+    relative = source_file.lstrip("/").replace("/", "\\")
+    return Path(__file__).resolve().parent / relative.replace("static\\", "static\\", 1)

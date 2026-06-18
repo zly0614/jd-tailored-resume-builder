@@ -1,4 +1,5 @@
 # Jianli Creator
+> 2026-05-29 更新：默认模板 `zhang_leyan_default` 已调整为基于 `resume_builder/static/template_files/zhang_leyan_default.doc` 的 Word 模板填充策略，优先输出 `.docx` 与 `.pdf`，不再默认走 LaTeX 近似排版。
 
 Jianli Creator 是一个面向求职场景的本地化简历生成项目，核心目标是把“个人长期简历资料”沉淀成可复用的简历知识库，再基于不同岗位 JD 快速生成定制化简历。
 
